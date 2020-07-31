@@ -1,6 +1,19 @@
+@import "timeline.css";
+
+html {
+  font-size: 11px;
+}
 .App {
   text-align: center;
+  position: absolute;
+  margin: 40px;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
 }
+
 
 .App-logo {
   height: 40vmin;
@@ -36,3 +49,5 @@
     transform: rotate(360deg);
   }
 }
+
+
