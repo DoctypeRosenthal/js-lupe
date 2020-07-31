@@ -3,29 +3,39 @@ import './App.css';
 import debounce from 'lodash.debounce';
 
 
+
+
+const MINUTE_GRANULARITY = 5
+const MINUTES_PER_HOUR = 60
+const DAY_STARTS_AT = 8
+const WOKE_HOURS = 15
+const TICKS_PER_OUR = 12
+
+const ticksArr = new Array(WOKE_HOURS*TICKS_PER_OUR + 1).fill(undefined)
+
+
+// only return positive values
 const g = x => x >= 0 ? x : 0
 
-const f = (x, mousePos) => -.000000001*(x - mousePos)**4 + 1
+// a function for calculating the opacity and width of the ticks surrounding the mouse pointer
+const f = (x, mousePosition) => -.000000001*(x - mousePosition)**4 + 1
 
 const Tick = ({ mousePos, index }) => {
   const me = useRef({ offsetTop: 0 })
-  const myTime = useRef(index*5/60 + DAY_START)
+  const myTime = useRef(index * MINUTE_GRANULARITY / MINUTES_PER_HOUR + DAY_STARTS_AT)
   const isFullHour = useRef(Number.isInteger(myTime.current))
-  const myPos = me.current.offsetTop
-  const myValue = g(f(myPos, mousePos))
+  const myOffset = me.current.offsetTop
+  const magnifyingScalar = g(f(myOffset, mousePos))
 
   return (
-    <div className="tick" ref={me} style={{minHeight: myValue * 10 + 1 +  'px'}} >
+    <div className="tick" ref={me} style={{minHeight: magnifyingScalar * 10 + 1 +  'px'}} >
       {isFullHour.current && <div className="tick__number">{myTime.current}</div>}
-      <div className="tick__line" style={{ opacity: isFullHour.current ? 1 : myValue, transform: `scaleX(${isFullHour.current ? 1 : myValue})` }}/>
+      <div className="tick__line" style={{ opacity: isFullHour.current ? 1 : magnifyingScalar, transform: `scaleX(${isFullHour.current ? 1 : magnifyingScalar})` }}/>
     </div>
   )
 }
 
 
-const ticksArr = new Array(15*12 + 1).fill(undefined)
-
-const DAY_START = 8
 const Timeline = ({mousePos}) => {
 
   return (
@@ -42,10 +52,7 @@ const MemoTimeline = React.memo(Timeline)
 function App() {
   const [mousePos, setMousePos] = useState(0)
   const me = useRef(null)
-  const mouse = ({ clientY }) => {
-    if (me.current?.offsetTop)
-    setMousePos(clientY)
-  }
+  const mouse = ({ clientY }) => setMousePos(clientY)
   const debouncedMouse = debounce(mouse,1, {leading: true})
 
  return (
